@@ -33,20 +33,16 @@ def generate_launch_description():
 
     robot_description = Command(['ros2 param get --hide-type /robot_state_publisher robot_description'])
 
-    controller_params = os.path.join(
-        get_package_share_directory('my_bot'), # <-- Replace with your package name
-        'config',
-        'my_controllers.yaml'
-        )
+    controller_params = os.path.join(get_package_share_directory(package_name),'config','my_controllers.yaml')
 
     controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[{'robot_description': robot_description},
-                    controller_params],
+                    controller_params]
     )
  
-    delayed_controller_manager = TimerAction(period=3.0,actions=[controller_manager])
+    delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
 
     diff_drive_spawner = Node(
         package="controller_manager",
@@ -60,6 +56,7 @@ def generate_launch_description():
             on_start=[diff_drive_spawner],
         )
     )
+
     joint_broad_spawner = Node(
         package="controller_manager",
         executable="spawner.py",
@@ -75,10 +72,11 @@ def generate_launch_description():
  
     # Launch them all!
     return LaunchDescription([
-        rsp
+        rsp,
         delayed_controller_manager,
         delayed_diff_drive_spawner,
         delayed_joint_broad_spawner
     ])
+
 
     
